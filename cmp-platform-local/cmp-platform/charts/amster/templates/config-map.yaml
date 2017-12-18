@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: amster-config
+data:
+  00_install.amster: |
+    install-openam \
+    --serverUrl http://openam:80/openam \
+    --authorizedKey  /var/run/secrets/amster/authorized_keys \
+    --cookieDomain {{.Values.global.domain }} \
+    --adminPwd {{ .Values.amadminPassword }} \
+    --cfgStore {{ .Values.configStore.type }} \
+    {{ if eq .Values.configStore.type "dirServer" -}}
+    --cfgStoreHost {{.Values.configStore.host }} \
+    --cfgStoreDirMgrPwd {{.Values.configStore.password }}  \
+    --cfgStorePort {{.Values.configStore.port }}  \
+    --cfgStoreRootSuffix {{ .Values.configStore.suffix }} \
+    {{ end -}}
+    --policyAgentPwd {{ .Values.policyAgentPassword }}  \
+    --pwdEncKey {{ .Values.encryptionKey }} \
+    --acceptLicense \
+    --lbSiteName site1 \
+    --lbPrimaryUrl {{ if .Values.global.useTLS }}https{{else}}http{{end}}://{{ template "openamFQDN" . }}/openam \
+    --cfgDir /home/forgerock/openam
+    :exit
+  01_import.amster: |
+    connect http://openam/openam -k /var/run/secrets/amster/id_rsa
+    import-config --path /git/{{ .Values.global.git.projectDirectory }}/{{ .Values.global.configPath.am }}  --clean {{.Values.amsterClean }}
+    :exit
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: amster-{{ .Release.Name }}
+data:
+  GIT_REPO: "{{ .Values.global.git.repo }}"
+  GIT_CHECKOUT_BRANCH: "{{ .Values.global.git.branch }}"
+  GIT_ROOT:  "/git"
+  GIT_PROJECT_DIRECTORY: {{ default "forgeops-init" .Values.global.git.projectDirectory }}
+  EXPORT_PATH: {{  default .Values.global.configPath.am .Values.global.exportPath.am }}
+  GIT_SSH_COMMAND: "ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /etc/git-secret/ssh"
+  GIT_AUTOSAVE_BRANCH:  autosave-am-{{ .Release.Namespace }}
+  CONFIG_PATH: "{{ .Values.global.configPath.am }}"
+  SED_FILTER: {{ default "" .Values.global.git.sedFilter }}
+

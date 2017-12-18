@@ -1,0 +1,70 @@
+# Sample value overrides for Helm. The values below will work out of the box, and
+# are the same as the default values.yaml in the charts.
+# To override these values, make a copy of this file, and pass it to helm with the -f option
+# Example:  helm install -f my-custom.yaml openam
+# *DO NOT* check your custom.values file into git, as it may contain ssh credentials. See below
+
+
+# Global variables are used in all charts, including child charts nested under a parent chart.
+# Refer to https://github.com/kubernetes/helm/blob/master/docs/charts.md#scope-dependencies-and-values for more information
+# Be careful of proper yaml nesting here.
+global:
+  image:
+    # Image repo and tag. The image that is pulled will be  {repository}/{component}:{tag}
+    # Example:  set repository: quay.io/acme, tag: 1.0.1, the openam image formed is: quay.io/acme/openam:1.0.1
+    repository: forgerock
+    tag: 5.5.0
+    # If you want to force a re-pull of all images set this to "Always"
+    pullPolicy: IfNotPresent
+  # The domain - including a leading dot '.'.  Product FQDNs are formed using this domain.
+  # The format is  {component}.{kube-namespace}.{domain}.  For example: openam.default.example.com
+  domain: .amidolocal.com
+  # As an alternative to using fake domain names in /etc/hosts, you can use xip.io and your minikube IP address:
+  # domain: .192.168.99.100.xip.io
+  # Git Configuration:
+  # Where to pull product configuration, or push it (pushing requires git ssh credentials)
+  git:
+    # git repo to clone. The value below is a public git repo that does not require authentication.
+#    repo: "https://stash.forgerock.org/scm/cloud/forgeops-init.git"
+#    repo: "https://github.com/amido/leidos_forgeops-init.git"
+#    repo: "git@github.com:amido/leidos_forgeops-init.git"
+#    repo: "ssh://github.com/amido/leidos_forgeops-init.git"
+    repo: "https://github.com/matteoparussini/forgeops-init-local.git"
+    projectDirectory: "forgeops-init-local"
+    branch: develop
+    # This is a base64 encoded ssh private key for git authentication, required for pulling from
+    # private git repos, or pushing to a git repo. The value below is not a real ssh key and will not work.
+    # You need to replace this with your own ssh key. If you are just cloning http:// public repos that do not require
+    # authentication, this variable can be ignored.  If you set your own ssh key, do not check this file into git
+    # Generate a key using:
+    # ssh-keygen -t rsa -C "forgeops-robot@forgeops.com" -f ssh.   Do not enter a passphrase!
+    # Base64 encode the value using base64 <ssh
+    # and enter below. The generated ssh.pub key is the public key to add to your stash or github repo
+    # to allow access.
+    sshKey: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlKS0FJQkFBS0NBZ0VBMS9WanlyUzBsakE3WEN3Q0lmU0JzUEdBcXJ4UWdNd3NWbEQ4cTVDSDBIU1dDc0VQCkQ3TDJ2emMzc2hlU2lxbEdmSGsyS3JUZ3JFOXl1aUNQU1pqb2NwaWVOdmRjZVhFWVY4NXIxcFVuS3VwM1pZVlgKYThoNzl0YWRMcFVZMTArNmFacVByeGgwUkU5aW9tMEttTHZ2SUhXS2dMZGM5NjFSQmJ2UWd6K0JONnhxWklEbApSK3ZTM21KUEpENEFDVmJXMW9MenJaKzNJSzZlZm9DK1prUms5UXg5M1hkT0ZCNWNzK2xIOUZJSjdGZTNNOXJJCkhRdFlnZW4ybjBuT2REUHFxb3NSeWRRNVlmZTNYdzJ1aE5NRERMazJMRVdQbzBOZ2s4WTZIWEpCM0dHcmVXWXcKUVFVRHVPZUJMTXNjRUZ2ajJuUkczZmVtcXRxTk1peTNqWFVRdUZPOXNRNVdFWTRHTkQ2MFhEN3AyZ2JPMGlTZwpjZzNSK0pGK3J4VHdZbktMQmdicmNyUlBkT3lITVhPcnVHaEtyeFJtNlJ5VTFMU1NPSFZ5blV5MktCemRtRmRlCkE5bEFFVlVtTlRXb0h2RmZKQTBkbXN4TDZLK2FLNXA2bFNBRE9wR1I1R0NLOHZPc1ZjSVA4WXUzVEs0NlhpV3gKdCtRZ3EzbXBRS3prUE5pdENlT3BQL2tvRVp3NEtEVVdFc2Frc0IxVkl5aDRKQ2poZkNTek5HRVRQMXhQUUlteApVRlB0eExiVG5WUmlWZHdTdkVlNW16U1Vxd2Z5QnQwSzVwUGtGd1l1Nyszb3g3b245VmYvTXRlVDlHaUpxTU4vCnJvMGJabDA3VkczbzQxaU40M1pCNTYyVkYzK0tMTTF5WDduT05aRW9xRVJXNHZjUkJHUWMzN2NmTzhFQ0F3RUEKQVFLQ0FnQUhYanYxWW96Mnd0YURvb3pBRTlPSThmUnQzdGJ3VGdjRk91WWtCRjVkNGx4c0tZSVdDd2tZSlE0bAphV0I2a3FQeEEwR3gyMUgvRHdiZkN0VllzWHJjemhBMzErQ3oxQVA4bXZKYTgrUE9Od216MFFUV2pKU09LMnhaCmRvVE9jODNzWkhXYWg3OFB4WldiN1JSN2VZNERFWCtVUEsxVFZmcDVzNXE5bjZFTkFUandET1hGdW1vTFpGZEcKNlVhZkN2TnhoaTVDTWp6UlJLUHJ0UURLQkhOZFdQdkNYcHV2WEFuVnFaUG01aFdvbHFXTmcxMW9nRWFZeUI2OQorSXF1dEViQll0Vk1pWTBicHBQL0RqeHlFN0Q2OGliREEreU9xWEhXR09GS3QrYy9XYVc4RXB4NjIyenhGaFQyCkxrZmExd2ZESUV4NnJrUmxkK2R4V3MwNGFsSVRwOWJtV1VMdjk2ZE1qVnlsMk42QXkrUTEraG1mRE9wTlVld2MKckZsZ0hpM280aE1OL1NUd1kxWkltM21RMHZ5b0I5c29kQmxlblE2dEc4bUpXTG4vUHdLYWNrL21kRHNaYkRyUAoxVGx6WjM3Y0ZHSVZnejlKUDZXSHhBY3J4bWNyaWs2MDBXWTlneTM4TU41K0Y4YjlGWjhqRG5MMG92eU1yMVJvCmNQenFlWDM0SGp1T1ZZL2hLbzZWQUpzUHB6eUI4dVRxc1Bkc2hLQS93ME9EbEhoUnludlp5T0RpRFdWOWtGNU0KamlHbjhRazBWOFppK2U2Ukp6Yk9IcHY1bnJqNXQ5YjZrRlRvK0F6N0F5cjdtV1dhYnUwSEUvZ000emthVCtXTgpRS0RZYmZEMXNYdU9OVDZpVEVXdGNRb0s3bm41bWYxU3RFL2tVUVVtZDhycXlkZ0RzUUtDQVFFQTk1UnZ6K0t3CmEyZDgwTEMxNUxHRXdtZHJCQzEyMVBaUmpSeFBML21RVkw0RmlYMlFJNHVwQkoyd0gyMlBJVkRPaFpLTDJFSWoKTVFROWdvbTE5aGNCUnBHWWM0VzNFMVkxY2M3bVJuUkxsNC9oWUtuQWU2cFlEK21qcjRDbkd0cU1hY3F0Y0VTcQpTamhpTVJpd3dhSTRGN0liQ1JKT3JtM3YrTWlFK2tzN1ZYQ1hEQTFDR3FhdHJEK1MxMGtHRDR4ZTRacWw3blpQCjFGcmtFaFVSbTJtWkdmcDQxZUVZaFBxYW1NdEliSU1CYTdnaUFFUjF2OHdTV0FjT1QycXAvdlBHSWROclFQekEKellzTDA4M2ZEZU5iaEpTbVYzcFUvazFFeC8rRGhieUtZU2Vicit3WFVTQTdFWndpRVB4QkpVT1l0OGN2L2FFegpaY3B4blF0UFViWnpTd0tDQVFFQTMwMmtKUjJab0M5b2xiZ3RSdklUQy9XZFhBZXYwMzV1TkU1aWx1QlR4UzZuCnBieWxva3BDOGE1dlJHeGhpd3J2SjJ4Zkx3eFFtemlOTnRmVVRZbWhkSW9kalhySnlBYUZhUW5uNDV0QXNlL1QKQkpkYlRyVXpVbThjSG1POXdRc2wrTThabmZNUFFSaHViay9DSWVNUVpZRlFxMGFyMllNa1krYTJnQkVObWhWVwpiUEViZ2pPdXc1UGg4RmRTK21XVHRNS05DaU1YTDgwVFVlWXJCR294S0g5VzllbUhPNG56M1huTTE1Y3hVMThHClB1YmREOXNGQlJweU5YVXBmeDRQeEsydERoSGpqU0pKTnBHajR6S3RjQ2VkR1RyVlNsZFg5MEM0MStlSVJuZTUKaHY1Zy9EQTRKWk1yWmZkRWlCS2VPaUl4R3VmOVVQNUdNTEx0dTZTWm93S0NBUUJCMkhLY1lYZjJPTUhUWnd3WgpWTFV3VnZ6NVVYWW5VWk9DNmlLTmFkeGZEV0svbkd0M2FLOTlFTXRFc0lpK25aVXZwVGdZUGc3Si9JeTNhUlRCCjdJQmtXbGluY01xdUUrR0c4VFlCU3ZESDBIWnFsUHNpYUwyZkRjNkE0TUNRdmN0V1g1Y2RJc1gvazF0YUgyenoKTXNla1ZiUW5CMzF4bXIrVjlRNlkydVZlNWVEbVRhaGxHaXRhZ2xYMWQvQnF0alNOMytsOXNHMnUxcldOc1pqTApNcHlMY2pncytmN2hieDBxd2ZYekZpeU1qNTVMWCtuSkp1ZENEaTVhSk00dGhud05od01oZDVkM2t5R0VKVjdMCmZNcGNTb1NyQTFnVGdrMW11NmdwSzJuS1NSUjVCMXQwTWhSRHJMakt0NnhEMHVTTkRDYlJWOHdwcUZ2ckhwVHIKOEpCZEFvSUJBRFhvK3EzelBYbU11SVVjMStGKzQ5WkpUOW8rQ05iWWVTYXJuZVdxOXM1dCt3OXFRZHF5YndNRwpCOXJQQjZXWDJERCtXdVJ5NXFyeXRqVDlXa1gxNmtMR2JXZ1FzdEpWc0xPeExvaW1uTEhZb210RFYwbmpPU2EzCnFHUTExRVBjdXlnY1o2VFlYMkJwMDQ5U05oNFVRWXNmOHlmR2dncWJQSmZaeFVtWjFGelV0ZTdMTHNiNlQwRHMKWE9tM1MxTWtYc3FQQlpuaTZ1QWhkSDZiUU50cC84QTFMZnRraTc5MkNLZjVsZGllcWN2azd3OFVrVjRZbEZldApFTkdUSFplUTNHR3hSRXhYU1VaemRwVjBCOHI4R3g4dWtTRGNNVTRuVkJkZlNzRGxKdU5NV0VBYy9iRWt1d2xuClJGenptMW4ybExpWU5KNjRUMUhVY1lHa1VQeXlPbDBDZ2dFQkFKOUdBUzlVazFBTTM4TEdSbDV5WkhSbTFveFQKakM5aDhQc25GeGpEUmI0R0pJQ1ZQa0NES3hDcVpKOGQzZVlxb012ckZzT2hrekltSFVzb1I3aWUvaHJ3K3ZuUwplWCtnWHhpTWkwbEp5ZnpVK2VNOEJWa1JTS3VsTlhaQkY1b1FxRW5IK2RyYmQ2Vi9SWFhjRGMzM2FwQWNiVWFOCkZVY3dmMlhtM3Q0NncrK3phenNUMDROalhvdHVRRU04MVRuQVdMQ28weCtyb2ZpbHgyb2ZvcGlwK2t4YVJtbmkKUVZPZGNoTTkrcmZ3RlRSNkdlVFgvZEphREZMWDlNWXFZR0NaN1hnd2RGQXJwV3BBUi8yeW5GV2RvMWNVRGhBLwpNVlR5STdMUnZhVHdWRm9PUTYzZmJRWGlPS2N2aU85ZElwV20yclJZdFd0a3FtSnMvS3BMcDQrZDU1VT0KLS0tLS1FTkQgUlNBIFBSSVZBVEUgS0VZLS0tLS0K
+
+    # Optional sed filter to run after git checkout. The sed edit script here will be recursively run on *every*
+    # file checked out to the /git directory. You must include the -e option to sed, and you can specify
+    # multiple substitutions by repeating the -e s/// pattern. For example:
+    # sedFilter: "-e s/openam.default.com/openam.test.com/ -e s/acme/foobar/"
+    # Note that this will *not* change values in config maps. If you are changing the FQDN on install
+    # make sure you also change global.domain above.
+    sedFilter: ""
+  # The relative path to the product configuration to import. Relative to /git/$projectDirectory/
+  # specify the full path to the configuration
+  configPath:
+    idm: local-conf/idm/sync-with-ldap-bidirectional
+    am: local-conf/am/empty-import
+    ig: local-conf/ig/basic-sample
+  #  idm:  default/idm/sync-with-ldap-bidirectional
+  #  ig:   default/ig/basic-sample
+  # For AM only, you can specify a different export path. If this is not set, the export path defaults to  $configPath.am
+  exportPath:
+    am: local-conf/am/autosave
+  # Set this to true to use TLS for the ingresses for AM, IG, and IDM
+  # If you set this to true, you must create the TLS secrets manually.
+  # See bin/gen-ssl-secret.sh for an example of how to create a self-signed certificate.
+  # Example command:   bin/gen-ssl-secret.sh openam.default.example.com
+  # Will generate a self-signed certificate for the openam.default.example.com ingress.
+  # The CN of the certificate *MUST* match the FQDN.
+  useTLS: false

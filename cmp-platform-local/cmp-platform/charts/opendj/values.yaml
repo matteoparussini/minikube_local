@@ -1,0 +1,86 @@
+# Copyright (c) 2016-2017 ForgeRock AS.
+
+dirManagerPassword: password
+
+# The default bootstrap script.
+bootstrapScript: "/opt/opendj/bootstrap/setup.sh"
+
+# The other option here is "cts". This sets the BOOTSTRAP_TYPE env var for the bootstrap script.
+bootstrapType: "userstore"
+
+
+# The OpenDJ baseDN
+baseDN: "dc=openam,dc=forgerock,dc=org"
+
+# The default instance name. This will create a stateful set that can be resolved at
+#  $djInstance-0.$djInstance
+djInstance: userstore
+
+# The host where backups will be scheduled. Set this to the instance name where you want to run backups.
+# Example: userstore-0.
+# To disable scheduled backups, use a host name that does not match.
+#
+backupHost: dontbackup
+
+# Backup schedules for full and incrementals.
+backupScheduleFull:  "2 2 * * *"
+backupScheduleIncremental: "15 * * * *"
+
+
+component: opendj
+
+global:
+  image:
+    repository: forgerock
+    name: opendj
+    pullPolicy: IfNotPresent
+    tag:  5.5.0
+
+# The number of instances in the StatefulSet. Each instance will be replicated to the master.
+replicaCount: 1
+
+# Set for creating sample users. If unset, only the base DN will be created.
+#numberSampleUsers: 5
+
+# Size for OpenDJ storage. Note GKE IOPS scale based on the size of the volume.
+storageSize: "2Gi"
+
+# Set storageClass only on clusters that support it (GCP / AWS).
+#storageClass: fast
+
+# You need to be on JDK 8u131 or higher to enable these options.
+opendjJavaArgs: "-server -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+
+# Resource limits.
+# These help for pod placement on a larger cluster to ensure the OpenDJ instance gets sufficient resources.
+
+
+# For production you will want to specify CPU limits to help Kube schedule the pods.
+resources:
+  requests:
+   memory: 1024Mi
+
+
+# DJ persistence switch. Setting to false disables volume claims - all data is stored inside the docker image.
+# Used in testing environments without pv providers. When the pod is terminated, the DJ data will be deleted!
+# See issue https://github.com/kubernetes/kubernetes/issues/2630,
+# which impacts minikube (or any hostPath based provisioner). The underlying PV has root permissions,
+# and the DJ container will not start. If you need to run this on Minikube with PVC, set runAsUser: 0 in the
+# deployment securityContext:
+djPersistence: true
+
+
+
+
+git:
+  repo: "https://stash.forgerock.org/scm/cloud/forgeops.git"
+  branch: master
+
+# Set this to true to enable backups to gcloud
+enableGcloudBackups: false
+
+# backup Bucket destination. You need the right scopes in container engine to write to this bucket. add --scopes storage-full when you create the cluster.
+gsBucket: gs://forgeops/dj-backup
+
+# Uncomment this to create sample users.
+#numberSampleUsers: 100

@@ -1,0 +1,96 @@
+# Copyright (c) 2016-2017 ForgeRock AS.
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ template "instanceName" . }}
+  labels:
+    djInstance: {{ template "instanceName" . }}
+    app: {{ template "fullname" . }}
+    vendor: forgerock
+    component: {{ .Values.component }}
+spec:
+  serviceName: {{ template "instanceName" . }}
+  replicas: {{default 1 .Values.replicaCount }}
+  {{- if .Values.djPersistence }}
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ default "2Gi"  .Values.storageSize }}
+      {{- if .Values.storageClass }}
+      storageClassName:  {{ .Values.storageClass }}
+      {{- end }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        djInstance: {{ template "instanceName" . }}
+        app: {{ template "fullname" . }}
+        vendor: forgerock
+        component: opendj
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: djInstance
+                  operator: In
+                  values:
+                  - {{ template "instanceName" . }}
+              topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 30
+      # This will make sure the mounted PVCs are writable by the forgerock user with gid 111111.
+      securityContext:
+        fsGroup: 11111
+        runAsUser: 0
+      containers:
+      - name: opendj
+        image:  {{ template "image" . }}
+        imagePullPolicy: {{ template "pullPolicy" . }}
+        resources:
+{{ toYaml .Values.resources | indent 12 }}
+        envFrom:
+        - configMapRef:
+            name: {{ template "instanceName" . }}
+        ports:
+        - containerPort: 1389
+          name: ldap
+        - containerPort: 4444
+          name: djadmin
+
+        volumeMounts:
+        - name: dj-secrets
+          mountPath: /var/run/secrets/opendj
+        - name: dj-backup
+          mountPath: /opt/opendj/backup
+#        {{- if .Values.djPersistence }}
+        - name: data
+          mountPath: /opt/opendj/data
+#        {{- end }}
+        readinessProbe:
+          exec:
+            command: ["/opt/opendj/probe.sh"]
+          periodSeconds: 20
+          initialDelaySeconds: 30
+        livenessProbe:
+          exec:
+            command: ["/opt/opendj/probe.sh"]
+          initialDelaySeconds: 300
+          periodSeconds: 60
+      volumes:
+      - name: dj-secrets
+        secret:
+          secretName: {{ template "instanceName" . }}
+          # If we are running as non root, we can't set this mode to root read only
+          #defaultMode: 256
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ template "instanceName" . }}
+      - name: dj-backup
+        emptyDir: {}

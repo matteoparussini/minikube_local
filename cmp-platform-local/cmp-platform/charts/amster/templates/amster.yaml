@@ -1,0 +1,75 @@
+# Copyright (c) 2016-2017 ForgeRock AS.
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: amster
+  labels:
+    name: amster
+    app: {{ template "fullname" . }}
+    vendor: forgerock
+    component: amster
+    release: {{ .Release.Name }}
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        component: amster
+    spec:
+      terminationGracePeriodSeconds: 5
+      initContainers:
+      - name: git-init
+        image: {{ template "gitImage" . }}
+        imagePullPolicy:  {{ template "pullPolicy" . }}
+        volumeMounts:
+        - name: git
+          mountPath: /git
+        - name: git-secret
+          mountPath: /etc/git-secret
+        args: ["init"]
+        envFrom:
+        - configMapRef:
+            name: amster-{{ .Release.Name }}
+      containers:
+      - name: amster
+        image: {{ template "image" . }}
+        imagePullPolicy: {{  template "pullPolicy" . }}
+        envFrom:
+        - configMapRef:
+            name: amster-{{ .Release.Name }}
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        volumeMounts:
+        - name: git
+          mountPath: /git
+        - name: git-secret
+          mountPath: /etc/git-secret
+        # The ssh key for Amster authN
+        - name: amster-secrets
+          mountPath: /var/run/secrets/amster
+          readOnly: true
+        # The Amster scripts - not configuration.
+        - name: scripts
+          mountPath: /opt/amster/scripts
+        args: ["configure", "sync"]
+        resources:
+{{ toYaml .Values.resources | indent 12 }}
+      volumes:
+      - name: amster-secrets
+        secret:
+          secretName: amster-secrets
+      - name: scripts
+        configMap:
+          name: amster-config
+      # the amster and git pods share access to this volume
+      - name: git
+        emptyDir: {}
+      - name: git-secret
+        secret:
+          secretName: git-amster-{{ .Release.Name }}
+          # The forgerock user needs read access to this secret
+          #defaultMode: 256
