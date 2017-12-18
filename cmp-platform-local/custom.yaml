@@ -29,9 +29,9 @@ global:
 #    repo: "https://github.com/amido/leidos_forgeops-init.git"
 #    repo: "git@github.com:amido/leidos_forgeops-init.git"
 #    repo: "ssh://github.com/amido/leidos_forgeops-init.git"
-    repo: "https://github.com/matteoparussini/forgeops-init-local.git"
-    projectDirectory: "forgeops-init-local"
-    branch: develop
+    repo: "https://github.com/matteoparussini/minikube_local.git"
+    projectDirectory: "minikube_local"
+    branch: master
     # This is a base64 encoded ssh private key for git authentication, required for pulling from
     # private git repos, or pushing to a git repo. The value below is not a real ssh key and will not work.
     # You need to replace this with your own ssh key. If you are just cloning http:// public repos that do not require
