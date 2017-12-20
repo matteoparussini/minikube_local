@@ -11,4 +11,4 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: /data/local/postgres-openidm/
+    path: /opt/local/postgres-openidm/
