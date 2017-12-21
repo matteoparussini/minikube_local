@@ -9,7 +9,7 @@ docker
 
 To start up minikube, following ForgeRock DevOps advice (chapter 2.1.2 in DevOps Guide Version 5.5),  I've done a simple script, that for linux is looks like this:
 
-minikube start --memory=8192 --disk-size=30g --vm-driver=virtualbox
+minikube start --memory=8192 --disk-size=30g --vm-driver=virtualbox (double check that your instance really has at list 8 Gb!!! with some version of virtual box this commands doesn't work :( )
 minikube addons enable ingress
 minikube ssh sudo ip link set docker0 promisc on
 // 
@@ -18,7 +18,7 @@ kubectl proxy&
 
 I'm using a Kubernetes namespace called "local"; for that purpose you need to create it and set up the kubectl context
 
-kubectl create -f local_namespace.yaml
+kubectl create --validate=false -f local_namespace.yaml
 kubectl config set-context $(kubectl config current-context) --namespace=local
 
 Adding docker images
@@ -53,19 +53,22 @@ Now we need to create the persistent volumes and bind them with a minikube virtu
 (optional: bind a folder of your laptop to Minikube virtual box virtual)
 
 
-run:  
+run:
 
-kubectl create -f configstore_pv.yaml
-kubectl create -f configstore_pvc.yaml
+kubectl create --validate=false -f configstore_pv.yaml
+kubectl create --validate=false -f configstore_pvc.yaml
 
-kubectl create -f postgres_pv.yaml
-kubectl create -f postgres_pvc.yaml
+kubectl create --validate=false -f postgres_pv.yaml
+kubectl create --validate=false -f postgres_pvc.yaml
 
-kubectl create -f userstore_pv.yaml
-kubectl create -f userstore_pvc.yaml
+kubectl create --validate=false -f userstore_pv.yaml
+kubectl create --validate=false -f userstore_pvc.yaml
 
 After this you will have 3 persistent volunes that will store data of IDM database (postrgres), config and userstore ldap used by AM installation
 
+then run the helm installation
+
+helm install --values custom.yaml ./cmp-platform
 
 
 
