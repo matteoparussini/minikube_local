@@ -37,7 +37,7 @@ docker import tomcat.tar forgerock/tomcat:5.5.0
 
 IMPORTANT: label and tag should be the same as define into devops guide (if we want to change it, we need to change the scripts)
 
-# Persistent Voulumes
+# Persistent Volumes
 
 In forgerock Dev Opes guide, volumes are not persisted: so if you restart minikube, you lose the configuration/data which you were working on. For this reason I change helm charts to bind minikube volumes to a folder of minikube VM instance. I don't know if this is the best way to do it, but it could work for a local environment.
 
