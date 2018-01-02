@@ -3,8 +3,11 @@
 To run all the Forgerock module into you local machine you need to install:
 
 minikube (https://kubernetes.io/docs/tasks/tools/install-minikube/)
+
 kubectl  (https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+
 helm     (https://docs.helm.sh/using_helm/#installing-helm)
+
 docker
 
 To start up minikube, following ForgeRock DevOps advice (chapter 2.1.2 in DevOps Guide Version 5.5),  I've done a simple script, that for linux is looks like this:
@@ -56,13 +59,19 @@ Now we need to create the persistent volumes and bind them with a minikube virtu
 run:
 
 kubectl create --validate=false -f configstore_pv.yaml
+
 kubectl create --validate=false -f configstore_pvc.yaml
 
+
 kubectl create --validate=false -f postgres_pv.yaml
+
 kubectl create --validate=false -f postgres_pvc.yaml
 
+
 kubectl create --validate=false -f userstore_pv.yaml
+
 kubectl create --validate=false -f userstore_pvc.yaml
+
 
 After this you will have 3 persistent volunes that will store data of IDM database (postrgres), config and userstore ldap used by AM installation
 
