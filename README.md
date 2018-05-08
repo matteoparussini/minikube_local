@@ -28,7 +28,7 @@ Adding docker images
 
 Minikube has it's own docker and, if we want to install ForgeRock components, we need to add the docker images into Minikube. To create the images, you can follow the instruction described in the DevOps Guide (Ch 4.5 "Creating Docker images" version 5.5.0). Maybe it's a good idea adding those images to a Docker Registry. If you need I have exported them, so you just need to import! 
 
-eval $(minikube docker-env)
+eval $(minikube docker-env)  
 docker import openam.tar forgerock/openam:5.5.0
 docker import git.tar forgerock/git:5.5.0
 docker import java.tar forgerock/java:5.5.0
