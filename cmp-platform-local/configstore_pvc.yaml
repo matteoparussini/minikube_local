@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: data-configstore-0
 spec:
-  storageClassName: manual
+  storageClassName: hostpath
   accessModes:
     - ReadWriteOnce
   resources:
